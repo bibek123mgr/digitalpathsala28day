@@ -10,37 +10,33 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "users")
-public class User  implements Serializable {
+@Table(name = "orders")
+public class Order implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false,unique = true)
-    private String userName;
+    private String name;
 
-    @Column(nullable = false,unique = true)
-    private String email;
+    private String address;
 
-    @Column(nullable = false)
-    private String role;
+    private String contactNumber;
 
-    @Column(nullable = false)
-    private String password;
+    @Column(unique = true, nullable = false)
+    private Integer transactionId;
 
-    @Column(nullable = false)
-    private Boolean status=false;
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean status = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
+    @ManyToOne
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
     private User createdBy;
 
     @CurrentTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(updatable = false)
     private LocalDateTime updatedAt;
-
 }

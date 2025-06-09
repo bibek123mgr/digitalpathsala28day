@@ -1,15 +1,18 @@
 package com.example.warehouse.restImpl;
 
+import com.example.warehouse.constants.WASConstants;
 import com.example.warehouse.dto.CreateProductRequestDto;
 import com.example.warehouse.entity.Product;
 import com.example.warehouse.rest.ProductRest;
 import com.example.warehouse.service.ProductService;
+import com.example.warehouse.utils.WASUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,8 +28,8 @@ public class ProductRestImpl implements ProductRest {
             return productService.createNewProduct(productDate);
         } catch (Exception e) {
             log.error("Error in createNewProduct: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create product.");
         }
+        return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -35,8 +38,9 @@ public class ProductRestImpl implements ProductRest {
             return productService.updateProductInfo(productDate,id);
         } catch (Exception e) {
             log.error("Error in updateProductInfo: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update product info.");
         }
+        return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
     @Override
@@ -45,8 +49,8 @@ public class ProductRestImpl implements ProductRest {
             return productService.updateProductStatus(id);
         } catch (Exception e) {
             log.error("Error in updateProductStatus: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update product status.");
         }
+        return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -55,7 +59,8 @@ public class ProductRestImpl implements ProductRest {
             return productService.getAllProduct();
         } catch (Exception e) {
             log.error("Error in getAllProduct: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 }

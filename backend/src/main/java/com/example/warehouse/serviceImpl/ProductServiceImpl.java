@@ -1,14 +1,19 @@
 package com.example.warehouse.serviceImpl;
 
+import com.example.warehouse.constants.WASConstants;
 import com.example.warehouse.dto.CreateProductRequestDto;
 import com.example.warehouse.entity.Product;
 import com.example.warehouse.entity.User;
+import com.example.warehouse.entity.UserPrincipal;
 import com.example.warehouse.repo.ProductRepo;
 import com.example.warehouse.service.ProductService;
+import com.example.warehouse.utils.WASUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +31,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<String> createNewProduct(CreateProductRequestDto productData) {
         try {
-            Product product = mapCreateProductDtoToEntity(productData);
+            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+            UserPrincipal userPrincipal= (UserPrincipal) authentication.getPrincipal();
+            Integer userId= userPrincipal.getId();
+            Product product = mapCreateProductDtoToEntity(productData,userId);
             repo.save(product);
-            return new ResponseEntity<>("Product created successfully.", HttpStatus.CREATED);
+            return WASUtils.getResponse("Product created successfully.", HttpStatus.CREATED);
         } catch (Exception e) {
             log.error("Error in createNewProduct: {}", e.getMessage(), e);
-            return new ResponseEntity<>("INTERNAL SERVER ERROR.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -42,10 +50,10 @@ public class ProductServiceImpl implements ProductService {
                     .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
             updateProductFromDto(product, productData);
             repo.save(product);
-            return new ResponseEntity<>("Product updated successfully.", HttpStatus.OK);
+            return WASUtils.getResponse("Product updated successfully.", HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error in updateProductInfo: {}", e.getMessage(), e);
-            return new ResponseEntity<>("INTERNAL SERVER ERROR.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -54,21 +62,19 @@ public class ProductServiceImpl implements ProductService {
         try {
             Product product = repo.findById(id)
                     .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
-
             product.setStatus(!product.getStatus());
             repo.save(product);
-
-            return new ResponseEntity<>("Product status updated successfully.", HttpStatus.OK);
+            return WASUtils.getResponse("Product deleted successfully.", HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error in updateProductStatus: {}", e.getMessage(), e);
-            return new ResponseEntity<>("INTERNAL SERVER ERROR.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
     public ResponseEntity<List<Product>> getAllProduct() {
         try {
-            List<Product> products = repo.findAll();
+            List<Product> products = repo.findByStatusTrue();
             return ResponseEntity.ok(products);
         } catch (Exception e) {
             log.error("Error in getAllProduct: {}", e.getMessage(), e);
@@ -76,16 +82,14 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    private Product mapCreateProductDtoToEntity(CreateProductRequestDto dto) {
+    private Product mapCreateProductDtoToEntity(CreateProductRequestDto dto,Integer userId) {
         Product product = new Product();
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setStatus(true);
-
         User user = new User();
-        user.setId(1);
+        user.setId(userId);
         product.setCreatedBy(user);
-
         return product;
     }
 
