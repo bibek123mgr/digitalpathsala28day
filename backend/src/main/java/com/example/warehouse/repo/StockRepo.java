@@ -24,4 +24,9 @@ public interface StockRepo extends JpaRepository<Stock,Integer> {
     @Query(name = "Stock.getAllAvailableOnlyStockForProductByProductId")
     Integer getAllAvailableOnlyStockForProductByProductId(@Param("productId") Integer productId);
 
+    List<Stock> findAllByTransactionIdAndStatusTrue(Integer transactionId);
+
+    @Query(name = "Stock.updateStockStatusByTransactionId")
+    void updateStockStatusByTransactionId(@Param("transactionId") Integer transactionId);
+
 }

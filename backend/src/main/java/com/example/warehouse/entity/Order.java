@@ -29,7 +29,7 @@ public class Order implements Serializable {
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean status = true;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     private User createdBy;
 

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -31,6 +32,8 @@ public class OrderResponseDto {
 
         private String productName;
 
+        private String imageUrl;
+
         private Integer orderQty;
 
         private BigDecimal perOrderQty;
@@ -43,4 +46,7 @@ public class OrderResponseDto {
     private BigDecimal totalAmount;
 
     private String createdBy;
+
+    private LocalDateTime createdAt;
+
 }

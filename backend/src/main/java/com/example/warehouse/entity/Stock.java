@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.CurrentTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -55,6 +56,11 @@ import java.time.LocalDateTime;
                 "FROM Stock st " +
                 "WHERE st.Product.id = :productId AND st.status = true"
 )
+
+@NamedQuery(name = "Stock.updateStockStatusByTransactionId",
+        query = "UPDATE Stock s SET s.status=false WHERE s.transactionId=:transactionId"
+)
+
 
 
 
