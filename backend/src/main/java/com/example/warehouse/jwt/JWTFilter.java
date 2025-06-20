@@ -79,10 +79,10 @@ public class JWTFilter extends OncePerRequestFilter {
         response.setStatus(status);
         response.setContentType("application/json");
         String origin=response.getHeader("Origin");
-        if("http://localhost:5173".equals(origin)){
+        if("http://localhost:3001".equals(origin)){
             response.setHeader("Access-Control-Allow-Origin",origin);
         }else{
-            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
         }
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");

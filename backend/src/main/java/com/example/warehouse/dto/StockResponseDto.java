@@ -12,15 +12,16 @@ public class StockResponseDto {
     private Integer id;
     private Integer productId;
     private String productName;
-    private Integer stock;
+    private Long stock;
     private BigDecimal perStockPrice;
+    private BigDecimal totalStockPrice;
     private Integer supplierId;
     private String supplier;
     private String batchCode;
     private String createdBy;
     private LocalDateTime createdAt;
 
-    public StockResponseDto(Integer id, Integer productId, String productName, Integer stock, BigDecimal perStockPrice, Integer supplierId, String supplier, String batchCode, String createdBy, LocalDateTime createdAt) {
+    public StockResponseDto(Integer id, Integer productId, String productName, Long stock, BigDecimal perStockPrice, Integer supplierId, String supplier, String batchCode, String createdBy, LocalDateTime createdAt) {
         this.id = id;
         this.productId = productId;
         this.productName = productName;
@@ -31,8 +32,6 @@ public class StockResponseDto {
         this.batchCode = batchCode;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
+        this.totalStockPrice = perStockPrice.multiply(BigDecimal.valueOf(stock));
     }
-
-
-
 }

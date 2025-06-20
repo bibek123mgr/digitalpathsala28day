@@ -1,10 +1,9 @@
 package com.example.warehouse.service;
 
-import com.example.warehouse.dto.AuthResponseDto;
-import com.example.warehouse.dto.ChangePasswordDto;
-import com.example.warehouse.dto.UserCreateRequestDto;
-import com.example.warehouse.dto.UserLoginRequestDto;
+import com.example.warehouse.dto.*;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface AuthService {
     ResponseEntity<String> registerNewUser(UserCreateRequestDto requestBody);
@@ -12,4 +11,6 @@ public interface AuthService {
     ResponseEntity<String> changePassword(ChangePasswordDto requestBody);
 
     ResponseEntity<String> login(UserLoginRequestDto requestBody);
+
+    ResponseEntity<List<UserDto>> getAllActiveUsers();
 }

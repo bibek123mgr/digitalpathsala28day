@@ -18,7 +18,7 @@ public interface StockRest {
     @PutMapping("/{id}")
     public ResponseEntity<String> updateStock(@Valid @RequestBody AddStockRequestDto addStockRequestDto, @PathVariable Integer id);
 
-    @PatchMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> updateStockStatus(@PathVariable Integer id);
 
     @GetMapping()

@@ -4,8 +4,7 @@ import com.example.warehouse.constants.WASConstants;
 import com.example.warehouse.dto.AddOrderRequestDto;
 import com.example.warehouse.dto.OrderResponseDto;
 import com.example.warehouse.entity.*;
-import com.example.warehouse.repo.OrderRepo;
-import com.example.warehouse.repo.StockRepo;
+import com.example.warehouse.repo.*;
 import com.example.warehouse.service.OrderService;
 import com.example.warehouse.utils.CommonServices;
 import com.example.warehouse.utils.WASUtils;
@@ -36,15 +35,23 @@ public class OrderServiceImpl implements OrderService {
     private StockRepo stockRepo;
 
     @Autowired
+    private UserRepo userRepo;
+
+    @Autowired
+    private SupplierRepo supplierRepo;
+
+    @Autowired
+    private ProductRepo productRepo;
+
+    @Autowired
     private CommonServices commonServices;
 
     @Override
     public ResponseEntity<String> createNewOrder(AddOrderRequestDto order) {
         try {
-            Authentication authentication= SecurityContextHolder.createEmptyContext().getAuthentication();
+            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
             UserPrincipal userPrincipal=(UserPrincipal) authentication.getPrincipal();
-
-            Integer userId=userPrincipal.getId();
+            Integer userId= userPrincipal.getId();
 
             Integer transactionId=commonServices.getTransactionId();
             Order savedOrder=orderRepo.save(mapSaveOrderDateToEntity(order,transactionId,userId));
@@ -60,33 +67,63 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order mapSaveOrderDateToEntity(AddOrderRequestDto reqOrder,Integer transactionId,Integer userId){
-        User user=new User();
-        user.setId(userId);
-
         Order order=new Order();
         order.setName(reqOrder.getName());
         order.setAddress(reqOrder.getAddress());
         order.setContactNumber(reqOrder.getContactNumber());
         order.setTransactionId(transactionId);
         order.setStatus(true);
-        order.setCreatedBy(user);
+        order.setCreatedBy(userRepo.findById(userId).orElse(null));
         return order;
     }
 
+
+    @Override
+    public ResponseEntity<String> updateOrder(AddOrderRequestDto order, Integer id) {
+        try {
+            Optional<Order> optionalOrder = orderRepo.findById(id);
+            if (optionalOrder.isPresent()) {
+                Order existOrder = optionalOrder.get();
+                List<AddOrderRequestDto.Product> products = order.getOrder();
+                for (AddOrderRequestDto.Product product : products) {
+                    System.out.println(product);
+                    if (product.getId() != null && product.getId() > 0) {
+                        stockRepo.save(mapUpdateStockDataToEntity(product));
+                    } else {
+                        stockRepo.save(mapSaveStockDataToEntity(
+                                product,
+                                existOrder.getTransactionId(),
+                                existOrder.getCreatedBy().getId()
+                        ));
+                    }
+                }
+                orderRepo.save(mapUpdateOrderDateToEntity(existOrder,order));
+                return WASUtils.getResponse("Order updated successfully", HttpStatus.OK);
+            } else {
+                return WASUtils.getResponse("Unable to update - order not found", HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            log.error("Error in updateOrder: {}", e.getMessage(), e);
+            return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Order mapUpdateOrderDateToEntity(Order existOrder, AddOrderRequestDto reqOrder) {
+        existOrder.setName(reqOrder.getName());
+        existOrder.setAddress(reqOrder.getAddress());
+        existOrder.setContactNumber(reqOrder.getContactNumber());
+        return existOrder;
+    }
+
+
     private Stock mapSaveStockDataToEntity(AddOrderRequestDto.Product product,Integer transactionId,Integer userId){
-        User user=new User();
-        user.setId(userId);
         BigDecimal totalAmount = product.getPerOrderQty().multiply(BigDecimal.valueOf(product.getOrderQty()));
-
-
-        Supplier supplier=new Supplier();
-        supplier.setId(product.getSupplierId());
-
         Stock stock=new Stock();
         stock.setStockOut(product.getOrderQty());
         stock.setPerStockOutPrice(product.getPerOrderQty());
-        stock.setCreatedBy(user);
-        stock.setSupplier(supplier);
+        stock.setCreatedBy(userRepo.findById(userId).orElse(null));
+        stock.setProduct(productRepo.findById(product.getProductId()).orElse(null));
+        stock.setSupplier(supplierRepo.findById(product.getSupplierId()).orElse(null));
         stock.setTransactionId(transactionId);
         stock.setComesFrom("SALES");
         stock.setStockOutAmount(totalAmount);
@@ -96,16 +133,27 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    @Override
-    public ResponseEntity<String> updateOrder(AddOrderRequestDto order, Integer id) {
-        try {
-            // TODO: implement update logic
-            return WASUtils.getResponse("Order updated successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Error in updateOrder: {}", e.getMessage(), e);
-            return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    private Stock mapUpdateStockDataToEntity(AddOrderRequestDto.Product product) {
+        Optional<Stock> optionalStock = stockRepo.findById(product.getId());
+
+        if (optionalStock.isPresent()) {
+            BigDecimal totalAmount = product.getPerOrderQty().multiply(BigDecimal.valueOf(product.getOrderQty()));
+            Stock stock = optionalStock.get();
+            stock.setStockOut(product.getOrderQty());
+            stock.setPerStockOutPrice(product.getPerOrderQty());
+            stock.setProduct(productRepo.findById(product.getProductId()).orElse(null));
+            stock.setSupplier(supplierRepo.findById(product.getSupplierId()).orElse(null));
+            stock.setComesFrom("SALES");
+            stock.setStockOutAmount(totalAmount);
+            stock.setBatchCode(product.getBatchCode());
+            stock.setStatus(product.getStatus());
+            return stock;
+        } else {
+            throw new RuntimeException("Stock not found for ID: " + product.getId());
         }
     }
+
+
 
     @Override
     public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
@@ -120,8 +168,6 @@ public class OrderServiceImpl implements OrderService {
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
     @Override
     public ResponseEntity<OrderResponseDto> getParticularOrders(Integer id) {

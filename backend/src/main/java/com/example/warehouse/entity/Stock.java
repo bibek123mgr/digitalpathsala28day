@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.CurrentTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -17,16 +16,31 @@ import java.time.LocalDateTime;
 @Table(name = "stocks")
 
 
+
 @NamedQuery(
         name = "Stock.getAllAvailableStock",
         query = "SELECT NEW com.example.warehouse.dto.StockResponseDto(" +
                 "s.id, s.product.id, s.product.name, " +
                 "(SELECT SUM(st.stockIn) - SUM(st.stockOut) FROM Stock st WHERE st.batchCode = s.batchCode AND st.status = true), " +
-                "s.perStockInPrice, s.supplier.id, s.supplier.contactPerson,s.batchCode, s.createdBy.username, s.createdAt) " +
+                "s.perStockInPrice, s.supplier.id, s.supplier.contactPerson,s.batchCode, s.createdBy.userName, s.createdAt) " +
                 "FROM Stock s " +
                 "WHERE s.status = true AND s.comesFrom = 'PURCHASE' AND " +
                 "(SELECT SUM(st.stockIn) - SUM(st.stockOut) FROM Stock st WHERE st.batchCode = s.batchCode AND st.status = true) > 0"
 )
+
+
+//@NamedQuery(
+//        name = "Stock.getAllAvailableStock",
+//        query = "SELECT NEW com.example.warehouse.dto.StockOverviewDto(" +
+//                "s.product.id, " +
+//                "s.product.name, " +
+//                "SUM(s.stockIn) - SUM(s.stockOut), " +
+//                "SUM(s.stockIn), " +
+//                "SUM(s.stockOut)) " +
+//                "FROM Stock s " +
+//                "WHERE s.status = true " +
+//                "GROUP BY s.product.id, s.product.name"
+//)
 
 @NamedQuery(
         name = "Stock.getAllAvailableStockForProduct",
@@ -35,7 +49,7 @@ import java.time.LocalDateTime;
                 "(SELECT SUM(st.stockIn) - SUM(st.stockOut) " +
                 " FROM Stock st " +
                 " WHERE st.batchCode = s.batchCode AND st.status = true AND st.product.id = :productId), " +
-                "s.perStockInPrice, s.supplier.id, s.supplier.contactPerson,s.batchCode, s.createdBy.username, s.createdAt) " +
+                "s.perStockInPrice, s.supplier.id, s.supplier.contactPerson,s.batchCode, s.createdBy.userName, s.createdAt) " +
                 "FROM Stock s " +
                 "WHERE s.status = true AND s.comesFrom = 'PURCHASE' AND s.product.id = :productId AND " +
                 "(SELECT SUM(st.stockIn) - SUM(st.stockOut) " +
@@ -54,11 +68,12 @@ import java.time.LocalDateTime;
         name = "Stock.getAllAvailableOnlyStockForProductByProductId",
         query = "SELECT SUM(st.stockIn) - SUM(st.stockOut) " +
                 "FROM Stock st " +
-                "WHERE st.Product.id = :productId AND st.status = true"
+                "WHERE st.product.id = :productId AND st.status = true"
 )
 
-@NamedQuery(name = "Stock.updateStockStatusByTransactionId",
-        query = "UPDATE Stock s SET s.status=false WHERE s.transactionId=:transactionId"
+@NamedQuery(
+        name = "Stock.updateStockStatusByTransactionId",
+        query = "UPDATE Stock s SET s.status=false WHERE s.transactionId=:transactionId AND s.comesFrom='SALES'"
 )
 
 

@@ -42,7 +42,7 @@ public class StockServiceImpl implements StockService {
             String batchCode= commonServices.generateBatchCode();
             stockRepo.save(mapDataToEntity(addStockRequestDto,userId,transactionId,batchCode));
             commonServices.updateTransactionId(transactionId);
-            return ResponseEntity.ok("Stock added successfully.");
+            return WASUtils.getResponse("Stock added successfully", HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error occurred at addStock: {}", e.getMessage(), e);
             return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);

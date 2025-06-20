@@ -1,6 +1,8 @@
 package com.example.warehouse.restImpl;
 
+import com.example.warehouse.dto.ComboBoxResponseDto;
 import com.example.warehouse.dto.SupplierCreateRequestDto;
+import com.example.warehouse.dto.SupplierResponseDto;
 import com.example.warehouse.entity.Supplier;
 import com.example.warehouse.rest.SupplierRest;
 import com.example.warehouse.service.SupplierService;
@@ -41,7 +43,7 @@ public class SupplierRestImpl implements SupplierRest {
     }
 
     @Override
-    public ResponseEntity<List<Supplier>> getSuppliersList() {
+    public ResponseEntity<List<SupplierResponseDto>> getSuppliersList() {
         try {
             return supplierService.getSuppliersList();
         } catch (Exception e) {
@@ -58,5 +60,15 @@ public class SupplierRestImpl implements SupplierRest {
             log.error("Error occurred at deleteSupplier: {}", e.getMessage(), e);
         }
         return new ResponseEntity<>("INTERNAL SERVER ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<ComboBoxResponseDto>> getAllActiveSupplierForComboBox() {
+        try {
+            return supplierService.getAllActiveSupplierForComboBox();
+        } catch (Exception e) {
+            log.error("Error occurred at getSuppliersList: {}", e.getMessage(), e);
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

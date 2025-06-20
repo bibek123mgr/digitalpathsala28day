@@ -19,14 +19,14 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/" element={<Layout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="users" element={<Users />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="suppliers" element={<Suppliers />} />
-          <Route path="reports" element={<Reports />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/suppliers" element={<Suppliers />} />
+          <Route path="/reports" element={<Reports />} />
           <Route path="products" element={<Products />} />
-          <Route path="orders" element={<Orders />} />
+          {/* <Route path="orders" element={<Orders />} /> */}
         </Route>
       </Routes>
 

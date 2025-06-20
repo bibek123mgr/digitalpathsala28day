@@ -12,10 +12,10 @@ import java.util.List;
 public interface OrderRest {
 
     @PostMapping()
-    public ResponseEntity<String> createNewOrder(@Valid AddOrderRequestDto order);
+    public ResponseEntity<String> createNewOrder(@Valid @RequestBody AddOrderRequestDto order);
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateOrder(@Valid AddOrderRequestDto order,@PathVariable Integer id);
+    public ResponseEntity<String> updateOrder(@Valid @RequestBody AddOrderRequestDto order,@PathVariable Integer id);
 
     @GetMapping()
     public ResponseEntity<List<OrderResponseDto>> getAllOrders();
@@ -23,6 +23,6 @@ public interface OrderRest {
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDto> getParticularOrders(@PathVariable Integer id);
 
-    @PatchMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> updateOrderStatus(@PathVariable Integer id);
 }

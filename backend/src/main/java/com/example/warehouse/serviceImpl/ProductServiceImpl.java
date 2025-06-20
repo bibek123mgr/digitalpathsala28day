@@ -1,6 +1,7 @@
 package com.example.warehouse.serviceImpl;
 
 import com.example.warehouse.constants.WASConstants;
+import com.example.warehouse.dto.ComboBoxResponseDto;
 import com.example.warehouse.dto.CreateProductRequestDto;
 import com.example.warehouse.entity.Product;
 import com.example.warehouse.entity.User;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -76,6 +78,23 @@ public class ProductServiceImpl implements ProductService {
         try {
             List<Product> products = repo.findByStatusTrue();
             return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            log.error("Error in getAllProduct: {}", e.getMessage(), e);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<List<ComboBoxResponseDto>> getAllActiveProductForComboBox() {
+        try {
+            List<Product> products = repo.findByStatusTrue();
+            List<ComboBoxResponseDto> responseDtos=products.stream().map(product ->
+                    new ComboBoxResponseDto(
+                            product.getId(),
+                            product.getName()
+                    ))
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(responseDtos);
         } catch (Exception e) {
             log.error("Error in getAllProduct: {}", e.getMessage(), e);
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);

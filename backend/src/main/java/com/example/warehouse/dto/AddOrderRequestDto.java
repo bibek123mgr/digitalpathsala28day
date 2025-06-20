@@ -21,6 +21,7 @@ public class AddOrderRequestDto {
     private String contactNumber;
 
     @NotEmpty(message = "Order list cannot be empty")
+    @Size(min = 1, message = "Order must contain at least 1 item")
     private List<@Valid Product> order;
 
     @Data
@@ -44,5 +45,7 @@ public class AddOrderRequestDto {
 
         @NotBlank(message = "Batch code is required")
         private String batchCode;
+
+        private Boolean status=true;
     }
 }

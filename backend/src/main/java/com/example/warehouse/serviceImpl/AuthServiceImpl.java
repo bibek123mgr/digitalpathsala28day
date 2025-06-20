@@ -1,10 +1,7 @@
 package com.example.warehouse.serviceImpl;
 
 import com.example.warehouse.constants.WASConstants;
-import com.example.warehouse.dto.AuthResponseDto;
-import com.example.warehouse.dto.ChangePasswordDto;
-import com.example.warehouse.dto.UserCreateRequestDto;
-import com.example.warehouse.dto.UserLoginRequestDto;
+import com.example.warehouse.dto.*;
 import com.example.warehouse.entity.User;
 import com.example.warehouse.entity.UserPrincipal;
 import com.example.warehouse.jwt.JWTService;
@@ -24,8 +21,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
             UserPrincipal userPrincipal= (UserPrincipal) authentication.getPrincipal();
             Integer userId= userPrincipal.getId();
             userRepo.save(mapRequestDataInUser(requestBody, userId));
-            return new ResponseEntity<>("User Register Successfully", HttpStatus.CREATED);
+            return WASUtils.getResponse("User Register Successfully", HttpStatus.CREATED);
         } catch (Exception e) {
             log.error("Error occurred at AuthServiceImpl:{}",e.getMessage(),e);
         }
@@ -106,6 +107,30 @@ public class AuthServiceImpl implements AuthService {
             log.error("Error occurred in login: {}", e.getMessage(), e);
         }
         return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<UserDto>> getAllActiveUsers() {
+        try{
+            List<User> users=userRepo.findAll();
+            List<UserDto> userDtos = users.stream()
+                    .map(user -> new UserDto(
+                            user.getId(),
+                            user.getUserName(),
+                            user.getEmail(),
+                            user.getRole(),
+                            user.getStatus(),
+                            user.getCreatedBy() != null ? user.getCreatedBy().getUserName(): null,
+                            user.getCreatedAt()
+                    ))
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(userDtos,HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error occurred in getAllActiveUsers: {}", e.getMessage(), e);
+        }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
 

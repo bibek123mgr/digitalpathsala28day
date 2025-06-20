@@ -21,6 +21,6 @@ public class Index implements Serializable {
 
     private Integer maxId;
 
-    private String IndexCode;
+    private String indexCode;
 
 }

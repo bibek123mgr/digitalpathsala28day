@@ -1,22 +1,24 @@
 package com.example.warehouse.rest;
 
-import com.example.warehouse.dto.AuthResponseDto;
-import com.example.warehouse.dto.UserCreateRequestDto;
-import com.example.warehouse.dto.ChangePasswordDto;
-import com.example.warehouse.dto.UserLoginRequestDto;
+import com.example.warehouse.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/api/v1/auth")
+import java.util.List;
+
+@RequestMapping("/api/v1")
 public interface AuthRest {
 
-    @PostMapping("/register-new-user")
+    @PostMapping("/users")
     ResponseEntity<String> registerNewUser(@Valid @RequestBody UserCreateRequestDto requestBody);
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     ResponseEntity<String> login(@Valid @RequestBody UserLoginRequestDto requestBody);
 
-    @PostMapping("/change-password")
+    @GetMapping("/users")
+    ResponseEntity<List<UserDto>> getAllActiveUsers();
+
+    @PostMapping("/auth/change-password")
     ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordDto requestBody);
 }

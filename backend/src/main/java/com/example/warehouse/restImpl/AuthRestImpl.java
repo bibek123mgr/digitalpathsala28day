@@ -1,10 +1,7 @@
 package com.example.warehouse.restImpl;
 
 import com.example.warehouse.constants.WASConstants;
-import com.example.warehouse.dto.AuthResponseDto;
-import com.example.warehouse.dto.ChangePasswordDto;
-import com.example.warehouse.dto.UserCreateRequestDto;
-import com.example.warehouse.dto.UserLoginRequestDto;
+import com.example.warehouse.dto.*;
 import com.example.warehouse.rest.AuthRest;
 import com.example.warehouse.service.AuthService;
 import com.example.warehouse.utils.WASUtils;
@@ -13,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -39,6 +39,17 @@ public class AuthRestImpl implements AuthRest {
             log.error("Error occurred during user registration:{}", e.getMessage(),e);
         }
         return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<UserDto>> getAllActiveUsers() {
+        try{
+        return authService.getAllActiveUsers();
+        } catch (Exception e) {
+            log.error("Error occurred during user getAllActiveUsers:{}", e.getMessage(),e);
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
     @Override

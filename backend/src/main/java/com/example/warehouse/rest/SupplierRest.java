@@ -1,6 +1,8 @@
 package com.example.warehouse.rest;
 
+import com.example.warehouse.dto.ComboBoxResponseDto;
 import com.example.warehouse.dto.SupplierCreateRequestDto;
+import com.example.warehouse.dto.SupplierResponseDto;
 import com.example.warehouse.entity.Supplier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +19,12 @@ public interface SupplierRest {
     public ResponseEntity<String> updateSupplierInfo(@RequestBody SupplierCreateRequestDto requestBody,@PathVariable Integer id);
 
     @GetMapping()
-    public ResponseEntity<List<Supplier>> getSuppliersList();
+    public ResponseEntity<List<SupplierResponseDto>> getSuppliersList();
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteSupplier(@PathVariable Integer id);
 
+    @GetMapping("/combo-box")
+    public ResponseEntity<List<ComboBoxResponseDto>> getAllActiveSupplierForComboBox();
 
 }

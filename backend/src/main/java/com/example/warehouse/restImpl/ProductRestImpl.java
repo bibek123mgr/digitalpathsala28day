@@ -1,6 +1,7 @@
 package com.example.warehouse.restImpl;
 
 import com.example.warehouse.constants.WASConstants;
+import com.example.warehouse.dto.ComboBoxResponseDto;
 import com.example.warehouse.dto.CreateProductRequestDto;
 import com.example.warehouse.entity.Product;
 import com.example.warehouse.rest.ProductRest;
@@ -51,6 +52,16 @@ public class ProductRestImpl implements ProductRest {
             log.error("Error in updateProductStatus: {}", e.getMessage(), e);
         }
         return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<ComboBoxResponseDto>> getAllActiveProductForComboBox() {
+        try {
+            return productService.getAllActiveProductForComboBox();
+        } catch (Exception e) {
+            log.error("Error in getAllActiveProductForComboBox: {}", e.getMessage(), e);
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override

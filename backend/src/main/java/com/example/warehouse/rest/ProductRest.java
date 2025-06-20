@@ -1,5 +1,6 @@
 package com.example.warehouse.rest;
 
+import com.example.warehouse.dto.ComboBoxResponseDto;
 import com.example.warehouse.dto.CreateProductRequestDto;
 import com.example.warehouse.entity.Product;
 import jakarta.validation.Valid;
@@ -23,6 +24,9 @@ public interface ProductRest {
 
     @PatchMapping("/{id}")
     public ResponseEntity<String> updateProductStatus(@PathVariable Integer id);
+
+    @GetMapping("/combo-box")
+    public ResponseEntity<List<ComboBoxResponseDto>> getAllActiveProductForComboBox();
 
 
 }

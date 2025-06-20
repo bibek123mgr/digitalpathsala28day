@@ -1,41 +1,16 @@
 import LoginForm from "../../components/auth/login-form";
-import homeBg from '../../assets/home.jpg';
 
 export default function Login() {
-
     return (
-        <div
-            className="min-h-screen flex flex-col justify-center items-center p-4 sm:px-6 lg:px-8 bg-cover bg-center"
-        >
-            <div
-                className="absolute inset-0 bg-cover bg-center opacity-50 z-0"
-                style={{ backgroundImage: `url(${homeBg})` }}
-            ></div>
-
-            <div className="absolute top-10 left-10 w-16 h-16 bg-blue-500/5 rounded-full blur-xl"></div>
-            <div className="absolute bottom-10 right-10 w-20 h-20 bg-blue-500/10 rounded-full blur-xl"></div>
-            <div className="absolute top-1/3 right-1/4 w-12 h-12 bg-blue-200/20 rounded-full blur-lg"></div>
-            <div className="absolute bottom-1/3 left-1/4 w-14 h-14 bg-blue-500/5 rounded-full blur-lg"></div>
-            <div className="absolute inset-0 opacity-30 z-0 bg-pattern"></div>
-
-            <div className="relative mb-6 mt-10 text-center">
-                <h1 className="text-2xl font-bold text-blue-500 tracking-tight">Invenza</h1>
-                <div className="mt-1 flex items-center justify-center">
-                    <div className="h-px w-4 bg-blue-500/30"></div>
-                    <div className="mx-1 text-[10px] text-blue-500/70 font-medium">ESTABLISHED 1968</div>
-                    <div className="h-px w-4 bg-blue-500/30"></div>
-                </div>
-            </div>
-
-
-            <div className="sm:mx-auto sm:w-full sm:max-w-[420px]">
-                <div className="bg-white py-4 px-4 shadow-lg sm:rounded-xl sm:px-5 border border-blue-50 relative overflow-hidden bg-keycard">
-
-                    <div className="text-center mb-2">
-                        <div className="mx-auto h-10 w-10 bg-gradient-to-r from-blue-500 to-blue-500/70 text-white flex items-center justify-center rounded-full shadow-md">
+        <div className="min-h-screen flex flex-col md:flex-row bg-white">
+            {/* Left side - Branding and Info */}
+            <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-8 md:p-12 lg:p-16 flex flex-col justify-center text-white">
+                <div className="max-w-md mx-auto">
+                    <div className="flex items-center mb-8">
+                        <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mr-4">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
+                                className="h-6 w-6"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -44,20 +19,57 @@ export default function Login() {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                                 />
                             </svg>
                         </div>
+                        <h1 className="text-2xl font-bold">Invenza</h1>
+                    </div>
+
+                    <h2 className="text-3xl font-bold mb-4">Warehouse Management System</h2>
+                    <p className="text-blue-100 mb-8">
+                        Streamline your inventory management and optimize warehouse operations with our powerful platform.
+                    </p>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center">
+                            <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center mr-3">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <span>Real-time inventory tracking</span>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center mr-3">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <span>Automated reporting</span>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center mr-3">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <span>Multi-location management</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right side - Login Form */}
+            <div className="w-full md:w-1/2 flex items-center justify-center p-8 md:p-12 lg:p-16">
+                <div className="w-full max-w-md">
+                    <div className="text-center mb-8">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome back</h2>
+                        <p className="text-gray-600">Sign in to access your dashboard</p>
                     </div>
                     <LoginForm />
-
-                    <div className="absolute bottom-0 left-10 right-10 h-0.5 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"></div>
                 </div>
             </div>
         </div>
-
-    )
-
+    );
 }
-
-

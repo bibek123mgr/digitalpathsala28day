@@ -1,18 +1,27 @@
 package com.example.warehouse.serviceImpl;
 
+import com.example.warehouse.constants.WASConstants;
+import com.example.warehouse.dto.ComboBoxResponseDto;
 import com.example.warehouse.dto.SupplierCreateRequestDto;
+import com.example.warehouse.dto.SupplierResponseDto;
 import com.example.warehouse.entity.Supplier;
 import com.example.warehouse.entity.User;
+import com.example.warehouse.entity.UserPrincipal;
 import com.example.warehouse.repo.SupplierRepo;
 import com.example.warehouse.service.SupplierService;
+import com.example.warehouse.utils.WASUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -25,12 +34,20 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public ResponseEntity<String> createSupplier(SupplierCreateRequestDto requestBody) {
         try {
-            Supplier supplier = mapDtoToEntity(requestBody);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal)) {
+                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
+
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            Integer userId = userPrincipal.getId();
+
+            Supplier supplier = mapDtoToEntity(requestBody,userId);
             supplierRepo.save(supplier);
-            return new ResponseEntity<>("Supplier created successfully", HttpStatus.CREATED);
+            return WASUtils.getResponse("Supplier created successfully",HttpStatus.CREATED);
         } catch (Exception e) {
             log.error("Error at createSupplier: {}", e.getMessage(), e);
-            return new ResponseEntity<>("Error while creating supplier", HttpStatus.INTERNAL_SERVER_ERROR);
+            return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -40,28 +57,45 @@ public class SupplierServiceImpl implements SupplierService {
             Supplier existing = supplierRepo.findById(id).orElse(null);
 
             if (existing == null) {
-                return new ResponseEntity<>("Supplier not found", HttpStatus.NOT_FOUND);
+                return WASUtils.getResponse("Supplier not found",HttpStatus.NOT_FOUND);
             }
 
             updateSupplierFromDto(existing, requestBody);
             supplierRepo.save(existing);
-            return new ResponseEntity<>("Supplier updated successfully", HttpStatus.OK);
+            return WASUtils.getResponse("Supplier updated successfully",HttpStatus.OK);
 
         } catch (Exception e) {
             log.error("Error at updateSupplierInfo: {}", e.getMessage(), e);
-            return new ResponseEntity<>("Error while updating supplier", HttpStatus.INTERNAL_SERVER_ERROR);
+            return WASUtils.getResponse(WASConstants.INTERNAL_SERVER_ERROR,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
-    public ResponseEntity<List<Supplier>> getSuppliersList() {
+    public ResponseEntity<List<SupplierResponseDto>> getSuppliersList() {
         try {
-            List<Supplier> suppliers = supplierRepo.findAll();
-            return new ResponseEntity<>(suppliers, HttpStatus.OK);
+            List<Supplier> suppliers = supplierRepo.findByStatusTrue();
+            List<SupplierResponseDto> supplierResponseDtos=suppliers.stream()
+                    .map(this::mapSupplierToEntity)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(supplierResponseDtos, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error at getSuppliersList: {}", e.getMessage(), e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private SupplierResponseDto mapSupplierToEntity(Supplier supplier){
+        SupplierResponseDto supplierResponseDto=new SupplierResponseDto();
+        supplierResponseDto.setId(supplier.getId());
+        supplierResponseDto.setName(supplier.getName());
+        supplierResponseDto.setContactPerson(supplier.getContactPerson());
+        supplierResponseDto.setEmail(supplier.getEmail());
+        supplierResponseDto.setPhone(supplier.getPhone());
+        supplierResponseDto.setAddress(supplier.getAddress());
+        supplierResponseDto.setCategory(supplier.getCategory());
+        supplierResponseDto.setCreatedBy(supplier.getCreatedBy().getUserName());
+        supplierResponseDto.setCreatedAt(supplier.getCreatedAt());
+        return supplierResponseDto;
     }
 
     @Override
@@ -72,17 +106,36 @@ public class SupplierServiceImpl implements SupplierService {
             if (supplier == null) {
                 return new ResponseEntity<>("Supplier not found", HttpStatus.NOT_FOUND);
             }
-
-            supplierRepo.delete(supplier);
+            supplier.setStatus(false);
+            supplierRepo.save(supplier);
             return new ResponseEntity<>("Supplier deleted successfully", HttpStatus.OK);
-
         } catch (Exception e) {
             log.error("Error at deleteSupplier: {}", e.getMessage(), e);
             return new ResponseEntity<>("Error while deleting supplier", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private Supplier mapDtoToEntity(SupplierCreateRequestDto dto) {
+    @Override
+    public ResponseEntity<List<ComboBoxResponseDto>> getAllActiveSupplierForComboBox() {
+        try {
+            List<Supplier> suppliers = supplierRepo.findByStatusTrue();
+            List<ComboBoxResponseDto> supplierResponseDtos=suppliers.stream()
+                    .map(supplier -> new ComboBoxResponseDto(
+                            supplier.getId(),
+                            '['+supplier.getName()+']' + '['+supplier.getAddress()+']'
+                    ))
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(supplierResponseDtos, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error at getSuppliersList: {}", e.getMessage(), e);
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Supplier mapDtoToEntity(SupplierCreateRequestDto dto,Integer userId) {
+        User user=new User();
+        user.setId(userId);
+
         Supplier supplier = new Supplier();
         supplier.setName(dto.getName());
         supplier.setContactPerson(dto.getContactPerson());
@@ -91,10 +144,7 @@ public class SupplierServiceImpl implements SupplierService {
         supplier.setAddress(dto.getAddress());
         supplier.setCategory(dto.getCategory());
         supplier.setStatus(dto.getStatus());
-
-        User createdBy = new User();
-        createdBy.setId(1);
-        supplier.setCreatedBy(createdBy);
+        supplier.setCreatedBy(user);
 
         return supplier;
     }
